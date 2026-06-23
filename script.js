@@ -8,34 +8,39 @@
   /* ── Datacenters (modifiable) ── */
   const DATACENTERS = [
     {
-      host: 'menu.multicraft.network',
+      host: 'r1.multicraft.network',
       location: 'Falkenstein, Allemagne',
       provider: 'Hetzner'
     },
     {
-      host: 'menu1.multicraft.network',
-      location: 'Nuremberg, Allemagne',
+      host: 'r3.multicraft.network',
+      location: 'Falkenstein Allemagne',
       provider: 'Hetzner'
     },
     {
-      host: 'menu2.multicraft.network',
-      location: 'Nuremberg, Allemagne',
-      provider: 'Netcup'
+      host: 'r4.multicraft.network',
+      location: 'Singapour',
+      provider: 'Leaweb'
     },
     {
-      host: 'menu3.multicraft.network',
+      host: 'r6.multicraft.network',
+      location: 'Hong Kong',
+      provider: 'Hetzner'
+    },
+    {
+      host: 'r7.multicraft.network',
+      location: 'Naaldwijk, Pays-Bas',
+      provider: 'WorldStream'
+    },
+    {
+      host: 'r8.multicraft.network',
       location: 'Helsinki, Finlande',
       provider: 'Hetzner'
     },
-    {
-      host: 'menu4.multicraft.network',
-      location: 'Manassas, États-Unis',
-      provider: 'Netcup'
-    },
-    {
-      host: 'menu5.multicraft.network',
-      location: 'Russie',
-      provider: 'JSC timeweb'
+     {
+      host: 'r9.multicraft.network',
+      location: 'Sydney, Autralie',
+      provider: 'OVH'
     }
   ];
 
