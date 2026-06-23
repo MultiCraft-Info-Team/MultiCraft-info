@@ -8,67 +8,45 @@
   /* ── Datacenters (modifiable) ── */
   const DATACENTERS = [
     {
+      host: 'menu.multicraft.network',
+      location: 'Falkenstein, Allemagne',
+      provider: 'Hetzner'
+    },
+    {
+    {
       host: 'menu1.multicraft.network',
       location: 'Nuremberg, Allemagne',
-      provider: 'Netcup',
-      role: 'Serveur principal',
-      status: 'En ligne',
+      provider: 'Hetzner'
     },
     {
       host: 'menu2.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
+      location: 'Nuremberg, Allemagne',
+      provider: 'Netcup'
     },
     {
       host: 'menu3.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
+      location: 'Helsinki,Finlande',
+      provider: 'Hetzner',
     },
     {
       host: 'menu4.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
+      location: 'Manassas, États-Unis',
+      provider: 'Netcup'
     },
     {
       host: 'menu5.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
+      location: 'Russie',
+      provider: 'JSC timeweb'
     },
     {
       host: 'menu6.multicraft.network',
       location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
+      provider: 'À compléter'
     },
     {
       host: 'menu7.multicraft.network',
       location: 'À compléter',
       provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
-    },
-    {
-      host: 'menu8.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
-    },
-    {
-      host: 'menu9.multicraft.network',
-      location: 'À compléter',
-      provider: 'À compléter',
-      role: 'À compléter',
-      status: 'En ligne',
     },
   ];
 
