@@ -53,13 +53,17 @@
   function navigateTo(pageId) {
     if (!pages[pageId]) return;
 
-    Object.values(pages).forEach((p) => {
+    Object.values(pages).forEach(function(p) {
       if (p) p.classList.remove('active');
     });
     if (pages[pageId]) pages[pageId].classList.add('active');
 
-    document.querySelectorAll('.nav-link').forEach((link) => {
-      link.classList.toggle('active', link.dataset.nav === pageId);
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      if (link.dataset.nav === pageId) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
     });
 
     if (mainNav) mainNav.classList.remove('open');
@@ -76,11 +80,15 @@
 
   function handleRoute() {
     const hash = location.hash.slice(1) || 'accueil';
-    navigateTo(hash in pages ? hash : 'accueil');
+    if (pages[hash]) {
+      navigateTo(hash);
+    } else {
+      navigateTo('accueil');
+    }
   }
 
-  navLinks.forEach((el) => {
-    el.addEventListener('click', (e) => {
+  navLinks.forEach(function(el) {
+    el.addEventListener('click', function(e) {
       e.preventDefault();
       const page = el.dataset.nav;
       location.hash = page;
@@ -90,7 +98,7 @@
   window.addEventListener('hashchange', handleRoute);
 
   if (navToggle && mainNav) {
-    navToggle.addEventListener('click', () => {
+    navToggle.addEventListener('click', function() {
       const open = mainNav.classList.toggle('open');
       navToggle.classList.toggle('open', open);
       navToggle.setAttribute('aria-expanded', String(open));
@@ -112,7 +120,7 @@
   function animateHalo() {
     haloX += (targetX - haloX) * 0.08;
     haloY += (targetY - haloY) * 0.08;
-    halo.style.transform = `translate(${haloX - 210}px, ${haloY - 210}px)`;
+    halo.style.transform = 'translate(' + (haloX - 210) + 'px, ' + (haloY - 210) + 'px)';
     rafId = requestAnimationFrame(animateHalo);
   }
 
@@ -122,16 +130,16 @@
     document.body.classList.add('cursor-active');
     if (!rafId) rafId = requestAnimationFrame(animateHalo);
 
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', function(e) {
       targetX = e.clientX;
       targetY = e.clientY;
     });
 
-    document.addEventListener('mouseleave', () => {
+    document.addEventListener('mouseleave', function() {
       document.body.classList.remove('cursor-active');
     });
 
-    document.addEventListener('mouseenter', () => {
+    document.addEventListener('mouseenter', function() {
       if (isDesktopPointer()) document.body.classList.add('cursor-active');
     });
   }
@@ -142,7 +150,7 @@
     if (!match) return { meta: {}, body: raw.trim() };
 
     const meta = {};
-    match[1].split('\n').forEach((line) => {
+    match[1].split('\n').forEach(function(line) {
       const idx = line.indexOf(':');
       if (idx === -1) return;
       const key = line.slice(0, idx).trim();
@@ -151,7 +159,7 @@
         val = val
           .slice(1, -1)
           .split(',')
-          .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+          .map(function(s) { return s.trim().replace(/^["']|["']$/g, ''); })
           .filter(Boolean);
       } else {
         val = val.replace(/^["']|["']$/g, '');
@@ -159,7 +167,7 @@
       meta[key] = val;
     });
 
-    return { meta, body: match[2].trim() };
+    return { meta: meta, body: match[2].trim() };
   }
 
   function escapeHtml(str) {
@@ -180,8 +188,11 @@
     let listType = null;
 
     function closeList() {
-      if (listType) {
-        html.push(listType === 'ul' ? '</ul>' : '</ol>');
+      if (listType === 'ul') {
+        html.push('</ul>');
+        listType = null;
+      } else if (listType === 'ol') {
+        html.push('</ol>');
         listType = null;
       }
     }
@@ -195,11 +206,12 @@
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     }
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       if (line.startsWith('```')) {
         closeList();
         if (inCode) {
-          html.push(`<pre><code>${escapeHtml(codeBuffer.join('\n'))}</code></pre>`);
+          html.push('<pre><code>' + escapeHtml(codeBuffer.join('\n')) + '</code></pre>');
           codeBuffer = [];
           inCode = false;
         } else {
@@ -220,25 +232,45 @@
       }
 
       const h3 = line.match(/^### (.+)/);
-      if (h3) { closeList(); html.push(`<h3>${inline(h3[1])}</h3>`); continue; }
+      if (h3) {
+        closeList();
+        html.push('<h3>' + inline(h3[1]) + '</h3>');
+        continue;
+      }
 
       const h2 = line.match(/^## (.+)/);
-      if (h2) { closeList(); html.push(`<h2>${inline(h2[1])}</h2>`); continue; }
+      if (h2) {
+        closeList();
+        html.push('<h2>' + inline(h2[1]) + '</h2>');
+        continue;
+      }
 
       const bq = line.match(/^> (.+)/);
-      if (bq) { closeList(); html.push(`<blockquote>${inline(bq[1])}</blockquote>`); continue; }
+      if (bq) {
+        closeList();
+        html.push('<blockquote>' + inline(bq[1]) + '</blockquote>');
+        continue;
+      }
 
       const ul = line.match(/^[-*] (.+)/);
       if (ul) {
-        if (listType !== 'ul') { closeList(); html.push('<ul>'); listType = 'ul'; }
-        html.push(`<li>${inline(ul[1])}</li>`);
+        if (listType !== 'ul') {
+          closeList();
+          html.push('<ul>');
+          listType = 'ul';
+        }
+        html.push('<li>' + inline(ul[1]) + '</li>');
         continue;
       }
 
       const ol = line.match(/^\d+\. (.+)/);
       if (ol) {
-        if (listType !== 'ol') { closeList(); html.push('<ol>'); listType = 'ol'; }
-        html.push(`<li>${inline(ol[1])}</li>`);
+        if (listType !== 'ol') {
+          closeList();
+          html.push('<ol>');
+          listType = 'ol';
+        }
+        html.push('<li>' + inline(ol[1]) + '</li>');
         continue;
       }
 
@@ -248,12 +280,12 @@
       }
 
       closeList();
-      html.push(`<p>${inline(line)}</p>`);
+      html.push('<p>' + inline(line) + '</p>');
     }
 
     closeList();
     if (inCode && codeBuffer.length) {
-      html.push(`<pre><code>${escapeHtml(codeBuffer.join('\n'))}</code></pre>`);
+      html.push('<pre><code>' + escapeHtml(codeBuffer.join('\n')) + '</code></pre>');
     }
 
     return html.join('\n');
@@ -268,7 +300,7 @@
         month: 'long',
         day: 'numeric',
       });
-    } catch {
+    } catch (e) {
       return dateStr;
     }
   }
@@ -284,28 +316,26 @@
       const folders = await manifestRes.json();
 
       const posts = await Promise.all(
-        folders.map(async (folder) => {
-          const res = await fetch(`updates/${folder}/post.md`);
+        folders.map(async function(folder) {
+          const res = await fetch('updates/' + folder + '/post.md');
           if (!res.ok) return null;
           const raw = await res.text();
-          const { meta, body } = parseFrontmatter(raw);
+          const parsed = parseFrontmatter(raw);
           return {
-            folder,
-            date: meta.date || folder.split('-').slice(0, 3).join('-'),
-            title: meta.title || folder,
-            images: Array.isArray(meta.images) ? meta.images : meta.images ? [meta.images] : [],
-            body,
+            folder: folder,
+            date: parsed.meta.date || folder.split('-').slice(0, 3).join('-'),
+            title: parsed.meta.title || folder,
+            images: Array.isArray(parsed.meta.images) ? parsed.meta.images : parsed.meta.images ? [parsed.meta.images] : [],
+            body: parsed.body,
           };
         })
       );
 
-      const valid = posts
-        .filter(Boolean)
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      const valid = posts.filter(function(p) { return p !== null; })
+        .sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
 
       if (valid.length === 0) {
-        updatesContainer.innerHTML =
-          '<div class="empty-state"><p>Aucune mise à jour pour le moment.</p></div>';
+        updatesContainer.innerHTML = '<div class="empty-state"><p>Aucune mise à jour pour le moment.</p></div>';
       } else {
         updatesContainer.innerHTML = valid.map(renderUpdatePost).join('');
         bindLightbox();
@@ -314,42 +344,33 @@
       updatesLoaded = true;
     } catch (err) {
       console.error(err);
-      updatesContainer.innerHTML =
-        '<div class="error-state"><p>Impossible de charger les mises à jour.</p><p style="margin-top:0.5rem;font-size:0.85rem;color\:var(--text-dim)">Servez le site via un serveur local (ex. <code>python -m http.server</code>).</p></div>';
+      updatesContainer.innerHTML = '<div class="error-state"><p>Impossible de charger les mises à jour.</p><p style="margin-top:0.5rem;font-size:0.85rem;color\:var(--text-dim)">Servez le site via un serveur local (ex. <code>python -m http.server</code>).</p></div>';
     }
   }
 
   function renderUpdatePost(post) {
     if (!post) return '';
-    const imagesHtml =
-      post.images && post.images.length > 0
-        ? `<div class="update-images">\${post.images
-            .map(
-              (img) =>
-                `<img src="updates/${post.folder}/images/${img}" alt="" loading="lazy">`
-            )
-            .join('')}</div>`
-        : '';
+    let imagesHtml = '';
+    if (post.images && post.images.length > 0) {
+      imagesHtml = '<div class="update-images">' + post.images.map(function(img) {
+        return '<img src="updates/' + post.folder + '/images/' + img + '" alt="" loading="lazy">';
+      }).join('') + '</div>';
+    }
 
-    return `
-      <article class="update-post">
-        <div class="update-header">
-          <time class="update-date" datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time>
-          <h2 class="update-title">${escapeHtml(post.title)}</h2>
-        </div>
-        <div class="update-body">${renderMarkdown(post.body)}</div>
-        \${imagesHtml}
-      </article>`;
+    return '<article class="update-post"><div class="update-header"><time class="update-date" datetime="' +
+      escapeHtml(post.date) + '">' + formatDate(post.date) + '</time><h2 class="update-title">' +
+      escapeHtml(post.title) + '</h2></div><div class="update-body">' + renderMarkdown(post.body) +
+      '</div>' + imagesHtml + '</article>';
   }
 
   function bindLightbox() {
     if (!updatesContainer) return;
-    updatesContainer.querySelectorAll('.update-images img').forEach((img) => {
-      img.addEventListener('click', () => {
+    updatesContainer.querySelectorAll('.update-images img').forEach(function(img) {
+      img.addEventListener('click', function() {
         const lb = document.createElement('div');
         lb.className = 'lightbox';
-        lb.innerHTML = `<img src="${img.src}" alt="${img.alt || ''}">`;
-        lb.addEventListener('click', () => lb.remove());
+        lb.innerHTML = '<img src="' + img.src + '" alt="' + (img.alt || '') + '">';
+        lb.addEventListener('click', function() { lb.remove(); });
         document.body.appendChild(lb);
       });
     });
@@ -361,18 +382,15 @@
 
   function renderDatacenters() {
     if (!dcContainer) return;
-    dcContainer.innerHTML = DATACENTERS.map(
-      (dc) => `
-      <article class="dc-card">
-        <div class="dc-header">
-          <span class="dc-name">\${escapeHtml(dc.host)}</span>
-        </div>
-        <div class="dc-details">
-          <div class="dc-row"><span class="dc-label">Localisation</span><span class="dc-value">${escapeHtml(dc.location)}</span></div>
-          <div class="dc-row"><span class="dc-label">Hébergeur</span><span class="dc-value">${escapeHtml(dc.provider)}</span></div>
-        </div>
-      </article>`
-    ).join('');
+    let html = '';
+    for (let i = 0; i < DATACENTERS.length; i++) {
+      const dc = DATACENTERS[i];
+      html += '<article class="dc-card"><div class="dc-header"><span class="dc-name">' +
+        escapeHtml(dc.host) + '</span></div><div class="dc-details"><div class="dc-row"><span class="dc-label">Localisation</span><span class="dc-value">' +
+        escapeHtml(dc.location) + '</span></div><div class="dc-row"><span class="dc-label">Hébergeur</span><span class="dc-value">' +
+        escapeHtml(dc.provider) + '</span></div></div></article>';
+    }
+    dcContainer.innerHTML = html;
     datacentersLoaded = true;
   }
 
