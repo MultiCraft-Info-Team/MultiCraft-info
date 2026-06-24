@@ -3,8 +3,11 @@
 <p align="center">
   Un site web rassemblant des infos sur MultiCraft.
 </p>
-[Lien](https://multicraft-info.netlify.app)
 
+<p align="center">
+<a href="https://www.multicraft-info.netlify.app">Site web</a>
+</p>
+ 
 Fait en HTML/CSS/JS avec du Markdown et du JSON
 
 ## Fonctionnalités 
@@ -16,8 +19,8 @@ Fait en HTML/CSS/JS avec du Markdown et du JSON
 </p>
 
 ## Licenses
-License du code : GNU General Public License V3 
-License du texte dans le dossier "updates" et des images dans ledit dossier : CC-BY-NC 4.0 
+<p>
+License du code : GNU General Public License V3 <br>
+License du texte dans le dossier "updates" et des images dans ledit dossier : CC-BY-NC 4.0 <br>
 License de la police MultiCraft Font : CC-BY-SA 3.0 (Copyright MultiCraft Studio OÜ)
-
-
+</p>
