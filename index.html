@@ -169,6 +169,30 @@
     </div>
   </div>
 
+  <!-- Pop-up liste des joueurs -->
+  <div id="players-modal" class="modal-overlay" hidden>
+    <div class="modal-box players-modal-box" role="dialog" aria-modal="true" aria-labelledby="players-modal-title">
+      <button type="button" class="modal-close" id="players-modal-close-btn" aria-label="Fermer">✕</button>
+      <p class="modal-eyebrow">Joueurs connectés</p>
+      <h2 id="players-modal-title">Serveur</h2>
+      <span id="players-modal-count" class="players-modal-count"></span>
+
+      <label class="search-bar players-search-bar" for="players-search-input">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="search" id="players-search-input" placeholder="Rechercher un joueur…"
+          aria-label="Rechercher un joueur">
+      </label>
+
+      <div id="players-list-container" class="players-list-container">
+        <!-- Rempli dynamiquement par JavaScript -->
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="players-modal-close-btn-2" class="btn btn-ghost modal-close-bottom">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 
