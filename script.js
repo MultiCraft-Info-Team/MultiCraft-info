@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════
-   MultiCraft Info — script principal
-   ═══════════════════════════════════════════ */
-
 (function () {
   'use strict';
 
@@ -621,7 +617,7 @@
   const serversContainer = document.getElementById('servers-container');
   const serverSearchInput = document.getElementById('server-search');
   const serversCountEl = document.getElementById('servers-count');
-  const sortPlayersSelect = document.getElementById('sort-players');
+  const sortBySelect = document.getElementById('sort-by');
   const filterCountrySelect = document.getElementById('filter-country');
 
   function getServerCountry(server) {
@@ -707,11 +703,46 @@
     });
   }
 
+  /* ── Récupère la note moyenne de tous les serveurs en une seule requête ── */
+  async function fetchAllServerRatings() {
+    const ratings = new Map();
+    try {
+      const url = SUPABASE_URL + '/rest/v1/reviews?select=server_id,rating&limit=10000';
+      const res = await fetch(url, { headers: SUPABASE_HEADERS });
+      if (!res.ok) throw new Error('Erreur chargement des notes (' + res.status + ')');
+      const rows = await res.json();
+
+      const totals = new Map();
+      rows.forEach(function (row) {
+        if (!row.server_id || typeof row.rating !== 'number') return;
+        const current = totals.get(row.server_id) || { sum: 0, count: 0 };
+        current.sum += row.rating;
+        current.count += 1;
+        totals.set(row.server_id, current);
+      });
+
+      totals.forEach(function (value, serverId) {
+        ratings.set(serverId, { avg: value.sum / value.count, count: value.count });
+      });
+    } catch (err) {
+      console.error('Impossible de charger les notes des serveurs', err);
+    }
+    return ratings;
+  }
+
+  function applyServerRatings(servers, ratings) {
+    servers.forEach(function (server) {
+      const r = ratings.get(server.server_id);
+      server._avgRating = r ? r.avg : null;
+      server._reviewsCount = r ? r.count : 0;
+    });
+  }
+
   function applyFiltersAndSort() {
     if (!allServers.length) return;
 
     const searchQuery = serverSearchInput ? serverSearchInput.value : '';
-    const sortType = sortPlayersSelect ? sortPlayersSelect.value : 'desc';
+    const sortType = sortBySelect ? sortBySelect.value : 'players-desc';
     const countryFilter = filterCountrySelect ? filterCountrySelect.value : 'all';
 
     let filtered = filterServers(searchQuery);
@@ -723,14 +754,18 @@
     }
 
     filtered.sort(function (a, b) {
+      if (sortType === 'rating-desc' || sortType === 'rating-asc') {
+        // Les serveurs sans aucun avis sont toujours placés à la fin, quel que soit le sens du tri.
+        const NO_RATING = 6;
+        const aRating = a._avgRating != null ? a._avgRating : NO_RATING;
+        const bRating = b._avgRating != null ? b._avgRating : NO_RATING;
+        return sortType === 'rating-desc' ? bRating - aRating : aRating - bRating;
+      }
+
       const aPlayers = a.online ? (a.connected_players || 0) : -1;
       const bPlayers = b.online ? (b.connected_players || 0) : -1;
 
-      if (sortType === 'desc') {
-        return bPlayers - aPlayers;
-      } else {
-        return aPlayers - bPlayers;
-      }
+      return sortType === 'players-asc' ? aPlayers - bPlayers : bPlayers - aPlayers;
     });
 
     filteredServers = filtered;
@@ -781,6 +816,10 @@
       : '';
 
     const adminHtml = adminName ? '<div class="server-admin">👑 ' + adminName + '</div>' : '';
+    const ratingHtml = server._avgRating != null
+      ? '<span class="server-rating">★ ' + server._avgRating.toFixed(1)
+        + ' <span class="server-rating-count">(' + server._reviewsCount + ')</span></span>'
+      : '<span class="server-rating server-rating-none">Aucun avis</span>';
     const serverDataAttr = escapeHtml(JSON.stringify(server));
 
     return (
@@ -793,6 +832,7 @@
       '<span class="server-players' + (online ? '' : ' offline') + '"><span class="dot"></span>' + players + '</span>' +
       '</div>' +
       adminHtml +
+      '<div class="server-meta-row">' + ratingHtml + '</div>' +
       '<p class="server-desc">' + description.substring(0, 100) + (description.length > 100 ? '...' : '') + '</p>' +
       '<div class="server-actions">' +
       discordBtn +
@@ -856,11 +896,15 @@
 
   async function loadServers() {
     try {
-      const res = await fetch(SERVERS_API_URL);
+      const [res, ratings] = await Promise.all([
+        fetch(SERVERS_API_URL),
+        fetchAllServerRatings()
+      ]);
       if (!res.ok) throw new Error('Réponse API invalide (' + res.status + ')');
       const data = await res.json();
 
       allServers = extractServers(data);
+      applyServerRatings(allServers, ratings);
       serversLoaded = true;
 
       updateCountryFilter();
@@ -886,8 +930,8 @@
     });
   }
 
-  if (sortPlayersSelect) {
-    sortPlayersSelect.addEventListener('change', function () {
+  if (sortBySelect) {
+    sortBySelect.addEventListener('change', function () {
       if (!serversLoaded) return;
       applyFiltersAndSort();
     });
