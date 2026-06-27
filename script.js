@@ -100,7 +100,6 @@
       response_type: 'code',
       scope: DISCORD_SCOPES,
       state: state,
-      prompt: 'none',
     });
 
     window.location.href = 'https://discord.com/api/oauth2/authorize?' + params.toString();
