@@ -508,7 +508,8 @@
   function formatDate(dateStr) {
     try {
       const d = new Date(dateStr);
-      return d.toLocaleDateString('fr-FR', {
+      const locale = window.i18n && window.i18n.lang === 'en' ? 'en-US' : 'fr-FR';
+      return d.toLocaleDateString(locale, {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -531,9 +532,24 @@
 
       const posts = await Promise.all(
         folders.map(async function (folder) {
-          const res = await fetch('updates/' + folder + '/post.md');
-          if (!res.ok) return null;
-          const raw = await res.text();
+          const lang = window.i18n.lang;
+          let raw = null;
+
+          // Si la langue est l'anglais, on essaie d'abord post-en.md
+          if (lang === 'en') {
+            try {
+              const enRes = await fetch('updates/' + folder + '/post-en.md');
+              if (enRes.ok) raw = await enRes.text();
+            } catch (e) { /* ignore, on retombe sur le fr */ }
+          }
+
+          // Repli sur post.md (français) si pas de version anglaise dispo
+          if (raw === null) {
+            const res = await fetch('updates/' + folder + '/post.md');
+            if (!res.ok) return null;
+            raw = await res.text();
+          }
+
           const parsed = parseFrontmatter(raw);
           return {
             folder: folder,
