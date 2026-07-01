@@ -352,6 +352,17 @@ body.cursor-active #cursor-halo {
   font-size: 1.05rem;
 }
 
+.page-header-secondary {
+  margin-top: 3.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.page-header-secondary h2 {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  margin-bottom: 0.5rem;
+}
+
 .info-site-content {
   max-width: 600px;
   margin: 0 auto;
