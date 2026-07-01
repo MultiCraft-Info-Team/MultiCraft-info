@@ -259,6 +259,7 @@
 
   function clearDiscordSession() { localStorage.removeItem('discord_session'); }
 
+  /* ── Mise à jour de l'UI ── */
   function updateDiscordUI() {
     const loginBtn = document.getElementById('discord-login-btn');
     const userInfo = document.getElementById('discord-user-info');
@@ -267,47 +268,110 @@
 
     if (discordUser) {
       if (loginBtn) loginBtn.style.display = 'none';
-      if (userInfo) { userInfo.removeAttribute('hidden'); userInfo.style.display = 'flex'; }
-      if (avatarEl) { avatarEl.src = getDiscordAvatarUrl(discordUser); avatarEl.alt = getDiscordDisplayName(discordUser); }
+      if (userInfo) {
+        userInfo.removeAttribute('hidden');
+        userInfo.style.display = 'flex';
+      }
+      if (avatarEl) {
+        avatarEl.src = getDiscordAvatarUrl(discordUser);
+        avatarEl.alt = getDiscordDisplayName(discordUser);
+      }
       if (usernameEl) usernameEl.textContent = getDiscordDisplayName(discordUser);
     } else {
       if (loginBtn) loginBtn.style.display = '';
-      if (userInfo) { userInfo.setAttribute('hidden', ''); userInfo.style.display = 'none'; }
+      if (userInfo) {
+        userInfo.setAttribute('hidden', '');
+        userInfo.style.display = 'none';
+      }
     }
+
+    // 🔥 Mettre à jour l'état du chat après chaque changement d'utilisateur
+    updateChatAuthState();
   }
 
+  /* ── Gestion du callback OAuth2 ── */
   async function handleDiscordCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
     const error = urlParams.get('error');
-    if (error) { console.warn('Discord OAuth erreur :', error); const cleanUrl = window.location.origin + window.location.pathname + window.location.hash; history.replaceState(null, '', cleanUrl); return; }
+
+    if (error) {
+      console.warn('Discord OAuth erreur :', error);
+      const cleanUrl = window.location.origin + window.location.pathname + window.location.hash;
+      history.replaceState(null, '', cleanUrl);
+      return;
+    }
+
     if (!code) return;
+
     const savedState = sessionStorage.getItem('discord_oauth_state');
     sessionStorage.removeItem('discord_oauth_state');
-    if (!savedState || state !== savedState) { console.error('Discord OAuth : état invalide (CSRF)'); const cleanUrl = window.location.origin + window.location.pathname + window.location.hash; history.replaceState(null, '', cleanUrl); return; }
+
+    if (!savedState || state !== savedState) {
+      console.error('Discord OAuth : état invalide (CSRF)');
+      const cleanUrl = window.location.origin + window.location.pathname + window.location.hash;
+      history.replaceState(null, '', cleanUrl);
+      return;
+    }
+
     try {
       const tokenData = await exchangeCodeForToken(code);
       const user = await fetchDiscordUser(tokenData.access_token);
       const expiresAt = Date.now() + (tokenData.expires_in || 604800) * 1000;
+
       discordUser = user;
       saveDiscordSession(user, tokenData.access_token, expiresAt);
       updateDiscordUI();
       await fetchAdmins();
-    } catch (err) { console.error('Discord auth erreur :', err); }
+
+      // 🔥 Forcer la mise à jour du chat après connexion
+      setTimeout(function () {
+        updateChatAuthState();
+        if (chatOpen && chatMessagesEl) {
+          loadChatMessagesForTab(currentChatTab, currentPrivatePartner);
+        }
+      }, 300);
+
+    } catch (err) {
+      console.error('Discord auth erreur :', err);
+    }
+
     const cleanUrl = window.location.origin + window.location.pathname + window.location.hash;
     history.replaceState(null, '', cleanUrl);
   }
 
+  /* ── Init auth ── */
   function initDiscordAuth() {
     const session = loadDiscordSession();
-    if (session) discordUser = session.user;
+    if (session) {
+      discordUser = session.user;
+    }
     updateDiscordUI();
     fetchAdmins();
+
+    // 🔥 Forcer la mise à jour du chat après connexion
+    setTimeout(function () {
+      updateChatAuthState();
+      if (chatOpen && chatMessagesEl) {
+        loadChatMessagesForTab(currentChatTab, currentPrivatePartner);
+      }
+    }, 200);
+
     document.addEventListener('click', function (e) {
-      if (e.target.closest('#discord-login-btn')) startDiscordLogin();
-      if (e.target.closest('#discord-logout-btn')) { discordUser = null; clearDiscordSession(); updateDiscordUI(); }
+      if (e.target.closest('#discord-login-btn')) {
+        startDiscordLogin();
+      }
+      if (e.target.closest('#discord-logout-btn')) {
+        discordUser = null;
+        clearDiscordSession();
+        updateDiscordUI();
+        if (chatOpen) {
+          closeChat();
+        }
+      }
     });
+
     handleDiscordCallback();
   }
 
@@ -1633,13 +1697,19 @@
     }
   }
 
+  /* ── Mise à jour de l'état du chat ── */
   function updateChatAuthState() {
+    var chatInputArea = document.getElementById('chat-input-area');
+    var chatLoginArea = document.getElementById('chat-login-area');
+
+    if (!chatInputArea || !chatLoginArea) return;
+
     if (discordUser) {
-      if (chatInputArea) chatInputArea.removeAttribute('hidden');
-      if (chatLoginArea) chatLoginArea.setAttribute('hidden', '');
+      chatInputArea.removeAttribute('hidden');
+      chatLoginArea.setAttribute('hidden', '');
     } else {
-      if (chatInputArea) chatInputArea.setAttribute('hidden', '');
-      if (chatLoginArea) chatLoginArea.removeAttribute('hidden');
+      chatInputArea.setAttribute('hidden', '');
+      chatLoginArea.removeAttribute('hidden');
     }
   }
 
@@ -1648,6 +1718,7 @@
     var chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
     chatWindow.removeAttribute('hidden');
+    var chatBadge = document.getElementById('chat-badge');
     if (chatBadge) chatBadge.setAttribute('hidden', '');
     updateChatAuthState();
 
