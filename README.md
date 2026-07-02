@@ -16,6 +16,7 @@ Developed with HTML/CSS/JS
 * Displays the list of game servers <br>
 * Displays the list of updates <br>
 * Allows users to put reviews for servers <br>
+* Chat with others user <br>
 And other great features coming soon! <br>
 </p>
 
