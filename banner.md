@@ -1,7 +1,7 @@
 ---
-isDisplayed: non
+isDisplayed: yes
 ---
 
-**fr:** 🚨 Dû à une maintenance de notre hébergeur, la page serveurs est indisponible. Nous sommes désolés !
+**fr:** 🚨 MultiCraft à retiré la possibilité de télécharger MultiCraft pour Windows. Il est donc également impossible de le télécharger sur notre site.
 
-**en:** 🚨 Because of a maintenance of our hosting provider, the Servers page is unavaliable. sorry !
+**en:** 🚨 MultiCraft delete the ability to download MultiCraft for Widnows. So it's impossible to download it on our website.
