@@ -1,5 +1,5 @@
 ---
-isDisplayed: yes
+isDisplayed: oui
 ---
 
 **fr:** 🚨 MultiCraft à retiré la possibilité de télécharger MultiCraft pour Windows. Il est donc également impossible de le télécharger sur notre site.
