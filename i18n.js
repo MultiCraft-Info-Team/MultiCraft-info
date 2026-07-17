@@ -67,7 +67,7 @@
 
       /* Site Info page */
       'siteInfo.createdBy':    'Ce site web a été créé par <a href="https://github.com/NattMath22">Aurelmattnath</a> et <a href="https://github.com/lulu76450">Lucas76</a>.',
-      'siteInfo.source':       'Le code source du site est disponible <a href="https://github.com/NattMath22/multicraft-info">ici</a>.',
+      'siteInfo.source':       'Le code source du site est disponible <a href="https://github.com/Deblock-Studios/MultiCraft-Info">ici</a>.',
       'siteInfo.notAffiliated':'Nous ne sommes pas affiliés à MultiCraft',
 
       /* Download page */
@@ -199,7 +199,7 @@
 
       /* Site Info page */
       'siteInfo.createdBy':    'This website was created by <a href="https://github.com/NattMath22">Aurelmattnath</a> and <a href="https://github.com/lulu76450">Lucas76</a>.',
-      'siteInfo.source':       'The site\'s source code is available <a href="https://github.com/NattMath22/multicraft-info">here</a>.',
+      'siteInfo.source':       'The site\'s source code is available <a href="https://github.com/Deblock-Studios/MultiCraft-Info">here</a>.',
       'siteInfo.notAffiliated':'We are not affiliated with MultiCraft',
 
       /* Download page */
