@@ -71,7 +71,7 @@
       'siteInfo.notAffiliated':'Nous ne sommes pas affiliés à MultiCraft',
 
       /* Download page */
-      'download.subtitle':     'Téléchargez MultiCraft pour Android ou Windows et choisissez la version de votre choix.',
+      'download.subtitle':     'Téléchargez MultiCraft pour Android et choisissez la version de votre choix.',
       'download.androidTitle': 'Android',
       'download.androidDesc':  'Fichier APK à installer sur votre appareil Android.',
       'download.windowsTitle': 'Windows',
@@ -203,7 +203,7 @@
       'siteInfo.notAffiliated':'We are not affiliated with MultiCraft',
 
       /* Download page */
-      'download.subtitle':     'Download MultiCraft for Android or Windows and pick the version you want.',
+      'download.subtitle':     'Download MultiCraft for Android and pick the version you want.',
       'download.androidTitle': 'Android',
       'download.androidDesc':  'APK file to install on your Android device.',
       'download.windowsTitle': 'Windows',
