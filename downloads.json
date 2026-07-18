@@ -5,26 +5,11 @@
       "build": "525",
       "url": "https://multicraft.world/downloads/2.0.17/multicraft-2.0.17-525-release.apk",
       "latest": true
-    }
-  ],
-  "windows": [
-    {
-      "version": "2.0.17",
-      "build": "5",
-      "url": "https://multicraft.world/downloads/2.0.17/multicraft-2.0.17-5-setup.exe",
-      "latest": false
     },
     {
       "version": "2.0.17",
-      "build": "3",
-      "url": "https://multicraft.world/downloads/2.0.17/multicraft-2.0.17-3-setup.exe",
-      "latest": false
-    },
-        {
-      "version": "2.0.17",
-      "build": "6",
-      "url": "https://multicraft.world/downloads/2.0.17/multicraft-2.0.17-6-setup.exe",
+      "build": "525 (Torrent)",
+      "url": "https://multicraft-info.netlify.app/files/multicraft-2.0.17-525-multicraft-info.torrent",
       "latest": true
     }
-  ]
 }
