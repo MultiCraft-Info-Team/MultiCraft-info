@@ -5,7 +5,7 @@
   const DATACENTERS = [
     { host: 'r1.multicraft.network', location: 'Falkenstein, Allemagne', provider: 'Hetzner' },
     { host: 'r3.multicraft.network', location: 'Falkenstein Allemagne', provider: 'Hetzner' },
-    { host: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' },
+ /* { host: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' }, this url do not respond */
     { host: 'r6.multicraft.network', location: 'Hong Kong', provider: 'Hetzner' },
     { host: 'r7.multicraft.network', location: 'Naaldwijk, Pays-Bas', provider: 'WorldStream' },
     { host: 'r8.multicraft.network', location: 'Helsinki, Finlande', provider: 'Hetzner' },
