@@ -622,16 +622,11 @@
   }
 
   async function measureLatency(host) {
-    const url = 'https://' + host + '/?t=' + Date.now();
-    const start = performance.now();
     try {
-      await fetch(url, {
-        method: 'HEAD',
-        mode: 'no-cors',
-        cache: 'no-store',
-        credentials: 'omit'
-      });
-      return Math.round(performance.now() - start);
+      const res = await fetch('https://lag-test.creatif-france.workers.dev/?url=' + encodeURIComponent(host));
+      if (!res.ok) return null;
+      const ms = await res.json();
+      return typeof ms === 'number' ? Math.round(ms) : null;
     } catch (e) {
       return null;
     }
@@ -921,20 +916,24 @@
 
   function renderServers(list) {
     if (!serversContainer) return;
+    // Fallback to filteredServers if no list passed (e.g. from langchange)
+    if (!list) list = filteredServers;
     // Remove any existing load-more button
     var oldBtn = document.getElementById('load-more-servers-btn');
     if (oldBtn) oldBtn.remove();
     serversDisplayedCount = 0;
-    if (!list.length) {
+    if (!list || !list.length) {
       serversContainer.innerHTML = '<div class="empty-state"><p>' + window.i18n.t('servers.empty') + '</p></div>';
     } else {
       var firstBatch = list.slice(0, SERVERS_PER_PAGE);
       serversDisplayedCount = firstBatch.length;
       serversContainer.innerHTML = firstBatch.map(renderServerCard).join('');
       bindServerCardActions();
-      renderLoadMoreButton(list);
+      if (serversDisplayedCount < list.length) {
+        renderLoadMoreButton(list);
+      }
     }
-    if (serversCountEl) serversCountEl.textContent = countLabel(list.length);
+    if (serversCountEl) serversCountEl.textContent = countLabel((list || []).length);
   }
 
   function renderLoadMoreButton(list) {
