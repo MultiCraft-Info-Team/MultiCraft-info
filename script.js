@@ -620,17 +620,41 @@
     // Start latency tests asynchronously without blocking rendering
     setTimeout(function () { runLatencyTests(); }, 100);
   }
+  
+async function measureLatency(host) {
+  try {
+    const res = await fetch(
+      'https://lag-test.creatif-france.workers.dev/?url=' +
+      encodeURIComponent(host)
+    );
 
-  async function measureLatency(host) {
-    try {
-      const res = await fetch('https://lag-test.creatif-france.workers.dev/?url=' + encodeURIComponent(host));
-      if (!res.ok) return null;
-      const ms = await res.json();
-      return typeof ms === 'number' ? Math.round(ms) : null;
-    } catch (e) {
-      return null;
+    if (!res.ok) return null;
+
+    const data = await res.json();
+
+    // Nouvelle structure du Worker
+    const avg = data?.results?.[0]?.result?.stats?.avg;
+
+    if (typeof avg === 'number') {
+      return Math.round(avg);
     }
+
+    // Au cas où "stats.avg" n'existe pas
+    const timings = data?.results?.[0]?.result?.timings;
+
+    if (Array.isArray(timings) && timings.length) {
+      const sum = timings.reduce((a, b) => a + b.rtt, 0);
+      return Math.round(sum / timings.length);
+    }
+
+    return null;
+
+  } catch (e) {
+    console.error(e);
+    return null;
   }
+}
+
 
   function latencyClass(ms) {
     if (ms === null) return 'latency-error';
