@@ -604,13 +604,60 @@
     let html = '';
     for (let i = 0; i < DATACENTERS.length; i++) {
       const dc = DATACENTERS[i];
-      html += '<article class="dc-card"><div class="dc-header"><span class="dc-name">' +
-        escapeHtml(dc.host) + '</span></div><div class="dc-details"><div class="dc-row"><span class="dc-label">Localisation</span><span class="dc-value">' +
-        escapeHtml(window.i18n.loc(dc.location)) + '</span></div><div class="dc-row"><span class="dc-label">Hébergeur</span><span class="dc-value">' +
+      const safeHost = escapeHtml(dc.host);
+      html += '<article class="dc-card"><div class="dc-header">' +
+        '<span class="dc-name">' + safeHost + '</span>' +
+        '<span class="dc-latency-badge" id="lat-' + safeHost.replace(/\./g, '-') + '">' +
+        '<span class="dc-latency-dot"></span><span class="dc-latency-val">Test…</span></span>' +
+        '</div><div class="dc-details">' +
+        '<div class="dc-row"><span class="dc-label">Localisation</span><span class="dc-value">' +
+        escapeHtml(window.i18n.loc(dc.location)) + '</span></div>' +
+        '<div class="dc-row"><span class="dc-label">Hébergeur</span><span class="dc-value">' +
         escapeHtml(dc.provider) + '</span></div></div></article>';
     }
     dcContainer.innerHTML = html;
     datacentersLoaded = true;
+    // Start latency tests asynchronously without blocking rendering
+    setTimeout(function () { runLatencyTests(); }, 100);
+  }
+
+  async function measureLatency(host) {
+    const url = 'https://' + host + '/?t=' + Date.now();
+    const start = performance.now();
+    try {
+      await fetch(url, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-store',
+        credentials: 'omit'
+      });
+      return Math.round(performance.now() - start);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function latencyClass(ms) {
+    if (ms === null) return 'latency-error';
+    if (ms < 250) return 'latency-good';
+    if (ms < 500) return 'latency-medium';
+    return 'latency-high';
+  }
+
+  async function runLatencyTests() {
+    // Run all tests concurrently — they don't block each other
+    DATACENTERS.forEach(async function (dc) {
+      const id = 'lat-' + dc.host.replace(/\./g, '-');
+      const badge = document.getElementById(id);
+      if (!badge) return;
+      const dot = badge.querySelector('.dc-latency-dot');
+      const val = badge.querySelector('.dc-latency-val');
+      const ms = await measureLatency(dc.host);
+      const cls = latencyClass(ms);
+      badge.className = 'dc-latency-badge ' + cls;
+      if (dot) dot.className = 'dc-latency-dot';
+      if (val) val.textContent = ms !== null ? ms + ' ms' : 'N/A';
+    });
   }
 
   /* ── Téléchargements ── */
@@ -652,9 +699,11 @@
 
   /* ── Serveurs ── */
   const SERVERS_API_URL = 'https://multicraft-servers.creatif-france.workers.dev';
+  const SERVERS_PER_PAGE = 50;
   let serversLoaded = false;
   let allServers = [];
   let filteredServers = [];
+  let serversDisplayedCount = 0;
   const serversContainer = document.getElementById('servers-container');
   const serverSearchInput = document.getElementById('server-search');
   const serversCountEl = document.getElementById('servers-count');
@@ -872,9 +921,49 @@
 
   function renderServers(list) {
     if (!serversContainer) return;
-    if (!list.length) serversContainer.innerHTML = '<div class="empty-state"><p>' + window.i18n.t('servers.empty') + '</p></div>';
-    else { serversContainer.innerHTML = list.map(renderServerCard).join(''); bindServerCardActions(); }
+    // Remove any existing load-more button
+    var oldBtn = document.getElementById('load-more-servers-btn');
+    if (oldBtn) oldBtn.remove();
+    serversDisplayedCount = 0;
+    if (!list.length) {
+      serversContainer.innerHTML = '<div class="empty-state"><p>' + window.i18n.t('servers.empty') + '</p></div>';
+    } else {
+      var firstBatch = list.slice(0, SERVERS_PER_PAGE);
+      serversDisplayedCount = firstBatch.length;
+      serversContainer.innerHTML = firstBatch.map(renderServerCard).join('');
+      bindServerCardActions();
+      renderLoadMoreButton(list);
+    }
     if (serversCountEl) serversCountEl.textContent = countLabel(list.length);
+  }
+
+  function renderLoadMoreButton(list) {
+    var existingBtn = document.getElementById('load-more-servers-btn');
+    if (existingBtn) existingBtn.remove();
+    if (serversDisplayedCount >= list.length) return;
+    var remaining = list.length - serversDisplayedCount;
+    var nextCount = Math.min(SERVERS_PER_PAGE, remaining);
+    var wrap = document.createElement('div');
+    wrap.id = 'load-more-servers-btn';
+    wrap.className = 'load-more-wrap';
+    wrap.innerHTML = '<button class="btn btn-ghost load-more-btn">Charger ' + nextCount + ' serveurs de plus <span class="load-more-count">(' + remaining + ' restants)</span></button>';
+    wrap.querySelector('button').addEventListener('click', function () { loadMoreServers(list); });
+    serversContainer.after(wrap);
+  }
+
+  function loadMoreServers(list) {
+    if (!serversContainer) return;
+    var nextBatch = list.slice(serversDisplayedCount, serversDisplayedCount + SERVERS_PER_PAGE);
+    serversDisplayedCount += nextBatch.length;
+    var fragment = document.createDocumentFragment();
+    nextBatch.forEach(function (server) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = renderServerCard(server);
+      if (tmp.firstElementChild) fragment.appendChild(tmp.firstElementChild);
+    });
+    serversContainer.appendChild(fragment);
+    bindServerCardActions();
+    renderLoadMoreButton(list);
   }
 
   function filterServers(query) {
