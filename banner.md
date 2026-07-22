@@ -1,10 +1,10 @@
 ---
-isDisplayed: non
+isDisplayed: oui
 ---
 
-**fr:** 🚨 Nous n'arrivons plus à récupérer le nombre de joueurs ainsi que les nouveaux serveurs. L'équipe est sur le problème.
+**fr:** 🚨 Le nombre de joueurs est actuellement à zéro sur tous les serveurs. Notre équipe tente de résoudre le problème.
 
-**en:** We are no longer able to retrieve the player count or the new servers. The team is working on the issue.
+**en:** 🚨 The numbers of players is currently at zero on every server. Our team try to fix the problem.
 
 
  
