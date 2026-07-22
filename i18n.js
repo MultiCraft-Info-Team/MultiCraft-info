@@ -55,6 +55,7 @@
 
       /* Game Info page */
       'gameInfo.subtitle': 'Liste des serveurs physiques de MultiCraft.',
+      'gameInfo.subtitle2': 'La latence en ms est mesurée depuis un serveur à Paris (France).',
       'gameInfo.locations': {
         'Falkenstein, Allemagne': 'Falkenstein, Allemagne',
         'Falkenstein Allemagne':  'Falkenstein Allemagne',
@@ -187,6 +188,7 @@
 
       /* Game Info page */
       'gameInfo.subtitle': 'List of MultiCraft physical servers.',
+      'gameInfo.subtitle2': 'Latency in ms is measured from a server in Paris, France',
       'gameInfo.locations': {
         'Falkenstein, Allemagne': 'Falkenstein, Germany',
         'Falkenstein Allemagne':  'Falkenstein Germany',
