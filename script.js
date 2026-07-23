@@ -506,7 +506,7 @@
           const file = inputEl.files && inputEl.files[0];
           if (!file) return;
           if (file.size > MAX_BYTES) {
-            showAvatarMsg('❌ Image trop lourde (max 2 Mo).', false);
+            showAvatarMsg(window.i18n ? window.i18n.t('profile.avatarTooBig') : '❌ Image trop lourde (max 2 Mo).', false);
             inputEl.value = '';
             return;
           }
@@ -536,7 +536,7 @@
             pendingFile = null;
             inputEl.value = '';
             updateDeblockUI();
-            showAvatarMsg('✓ Photo de profil mise à jour !', true);
+            showAvatarMsg(window.i18n ? window.i18n.t('profile.avatarSaved') : '✓ Photo de profil mise à jour !', true);
           } catch (err) {
             showAvatarMsg('❌ ' + (err.message || 'Erreur lors de l\'upload.'), false);
           } finally {
@@ -556,7 +556,7 @@
             if (inputEl) inputEl.value = '';
             if (saveBtn) saveBtn.disabled = true;
             updateDeblockUI();
-            showAvatarMsg('✓ Photo supprimée.', true);
+            showAvatarMsg(window.i18n ? window.i18n.t('profile.avatarRemoved') : '✓ Photo supprimée.', true);
           } catch (err) {
             showAvatarMsg('❌ ' + (err.message || 'Erreur.'), false);
           }
@@ -613,18 +613,27 @@
       }
 
       async function uploadToCatBox(file) {
-        const form = new FormData();
-        form.append('reqtype', 'fileupload');
-        form.append('fileToUpload', file);
-        /* CatBox ne requiert pas de clé pour les uploads anonymes */
-        const res = await fetch('https://catbox.moe/user/api.php', {
-          method: 'POST',
-          body: form,
-        });
-        if (!res.ok) throw new Error('CatBox HTTP ' + res.status);
-        const url = (await res.text()).trim();
-        if (!url.startsWith('https://')) throw new Error('CatBox : réponse invalide');
-        return url;
+        // CatBox bloque le CORS direct depuis le navigateur - on passe par des proxies
+
+        // Proxy 1 : corsproxy.io
+        try {
+          const f1 = new FormData();
+          f1.append('reqtype', 'fileupload');
+          f1.append('fileToUpload', file);
+          const r1 = await fetch('https://corsproxy.io/?url=https://catbox.moe/user/api.php', { method: 'POST', body: f1 });
+          if (r1.ok) { const u1 = (await r1.text()).trim(); if (u1.startsWith('https://')) return u1; }
+        } catch (_) {}
+
+        // Proxy 2 : crossorigin.me
+        try {
+          const f2 = new FormData();
+          f2.append('reqtype', 'fileupload');
+          f2.append('fileToUpload', file);
+          const r2 = await fetch('https://crossorigin.me/https://catbox.moe/user/api.php', { method: 'POST', body: f2 });
+          if (r2.ok) { const u2 = (await r2.text()).trim(); if (u2.startsWith('https://')) return u2; }
+        } catch (_) {}
+
+        throw new Error('Upload impossible (CORS). Active le bucket Supabase Storage "avatars" pour résoudre ce problème.');
       }
     })();
 
