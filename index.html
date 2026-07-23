@@ -619,6 +619,30 @@
 
       <!-- Pseudo / Username -->
 
+      <!-- ── Photo de profil ── -->
+      <div class="profile-section profile-avatar-section">
+        <h3>Photo de profil</h3>
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar-preview-wrap">
+            <img id="profile-avatar-preview" src="" alt="Avatar" class="profile-avatar-large">
+            <label for="profile-avatar-input" class="profile-avatar-edit-btn" title="Changer la photo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </label>
+          </div>
+          <div class="profile-avatar-info">
+            <p class="profile-avatar-hint">JPG, PNG ou GIF · max 2 Mo</p>
+            <input type="file" id="profile-avatar-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;">
+            <div class="profile-avatar-actions">
+              <button id="profile-avatar-save" class="btn btn-primary" disabled>Enregistrer</button>
+              <button id="profile-avatar-remove" class="btn btn-secondary">Supprimer</button>
+            </div>
+            <div id="profile-avatar-progress" class="profile-avatar-progress" hidden>
+              <div class="profile-avatar-progress-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="profile-section">
 
         <h3 data-i18n="profile.pseudo">Pseudo</h3>
