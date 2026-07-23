@@ -450,6 +450,9 @@
     const emailInput = document.getElementById('profile-email');
     if (pseudoInput) pseudoInput.value = Deblock.getDisplayName() || '';
     if (emailInput) emailInput.value = user.email || '';
+    // Refresh avatar preview
+    const avatarPreviewEl = document.getElementById('profile-avatar-preview');
+    if (avatarPreviewEl) avatarPreviewEl.src = Deblock.getAvatarUrl() || '';
     // Clear password fields
     const newPwdInput = document.getElementById('profile-new-password');
     const confirmPwdInput = document.getElementById('profile-confirm-password');
@@ -475,6 +478,155 @@
     if (!profilePage) return;
 
     const msgEl = document.getElementById('profile-status-msg');
+
+    /* ── Avatar upload ── */
+    (function initAvatarSection() {
+      const previewEl   = document.getElementById('profile-avatar-preview');
+      const inputEl     = document.getElementById('profile-avatar-input');
+      const saveBtn     = document.getElementById('profile-avatar-save');
+      const removeBtn   = document.getElementById('profile-avatar-remove');
+      const progressWrap = document.getElementById('profile-avatar-progress');
+      const progressBar  = progressWrap && progressWrap.querySelector('.profile-avatar-progress-bar');
+
+      const MAX_BYTES = 2 * 1024 * 1024; // 2 Mo
+      let pendingFile = null;
+
+      /* Affiche l'avatar actuel */
+      function loadCurrentAvatar() {
+        if (!previewEl) return;
+        const url = Deblock.getAvatarUrl();
+        previewEl.src = url || '';
+        previewEl.onerror = function () { previewEl.src = ''; };
+      }
+      loadCurrentAvatar();
+
+      /* Sélection d'un fichier */
+      if (inputEl) {
+        inputEl.addEventListener('change', function () {
+          const file = inputEl.files && inputEl.files[0];
+          if (!file) return;
+          if (file.size > MAX_BYTES) {
+            showAvatarMsg('❌ Image trop lourde (max 2 Mo).', false);
+            inputEl.value = '';
+            return;
+          }
+          pendingFile = file;
+          if (saveBtn) saveBtn.disabled = false;
+          /* Aperçu local */
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            if (previewEl) previewEl.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      /* Enregistrer */
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async function () {
+          if (!pendingFile) return;
+          saveBtn.disabled = true;
+          setProgress(10);
+          try {
+            const avatarUrl = await uploadAvatarWithFallback(pendingFile);
+            setProgress(90);
+            /* Sauvegarde de l'URL dans les métadonnées Supabase Auth */
+            await Deblock.updateProfile({ avatar_url: avatarUrl });
+            setProgress(100);
+            pendingFile = null;
+            inputEl.value = '';
+            updateDeblockUI();
+            showAvatarMsg('✓ Photo de profil mise à jour !', true);
+          } catch (err) {
+            showAvatarMsg('❌ ' + (err.message || 'Erreur lors de l\'upload.'), false);
+          } finally {
+            setTimeout(function () { setProgress(0); progressWrap.hidden = true; }, 1200);
+            if (saveBtn) saveBtn.disabled = !pendingFile;
+          }
+        });
+      }
+
+      /* Supprimer */
+      if (removeBtn) {
+        removeBtn.addEventListener('click', async function () {
+          try {
+            await Deblock.updateProfile({ avatar_url: '' });
+            if (previewEl) previewEl.src = '';
+            pendingFile = null;
+            if (inputEl) inputEl.value = '';
+            if (saveBtn) saveBtn.disabled = true;
+            updateDeblockUI();
+            showAvatarMsg('✓ Photo supprimée.', true);
+          } catch (err) {
+            showAvatarMsg('❌ ' + (err.message || 'Erreur.'), false);
+          }
+        });
+      }
+
+      function setProgress(pct) {
+        if (!progressWrap || !progressBar) return;
+        progressWrap.hidden = pct === 0;
+        progressBar.style.width = pct + '%';
+      }
+
+      function showAvatarMsg(msg, ok) {
+        /* Réutilise la zone de statut globale du profil */
+        if (!msgEl) return;
+        msgEl.textContent = msg;
+        msgEl.hidden = false;
+        msgEl.style.color = ok ? 'var(--green, #4ade80)' : 'var(--red, #ef4444)';
+        setTimeout(function () { msgEl.hidden = true; }, 4000);
+      }
+
+      /* ── Upload : Supabase Storage → fallback CatBox ── */
+      async function uploadAvatarWithFallback(file) {
+        /* 1. Essai Supabase Storage */
+        try {
+          const url = await uploadToSupabase(file);
+          if (url) return url;
+        } catch (e) {
+          console.warn('[Avatar] Supabase Storage échoué, bascule sur CatBox :', e.message);
+        }
+        /* 2. Fallback CatBox */
+        return await uploadToCatBox(file);
+      }
+
+      async function uploadToSupabase(file) {
+        const client = Deblock.getClient();
+        if (!client) throw new Error('Client Supabase non disponible');
+        const user = Deblock.getUser();
+        if (!user) throw new Error('Non authentifié');
+
+        const ext = file.name.split('.').pop() || 'jpg';
+        const path = 'avatars/' + user.id + '.' + ext;
+
+        const { error } = await client.storage
+          .from('avatars')
+          .upload(path, file, { upsert: true, contentType: file.type });
+
+        if (error) throw new Error(error.message);
+
+        const { data } = client.storage.from('avatars').getPublicUrl(path);
+        if (!data || !data.publicUrl) throw new Error('URL publique introuvable');
+        /* Ajoute un cache-buster pour forcer le rechargement de l'image */
+        return data.publicUrl + '?t=' + Date.now();
+      }
+
+      async function uploadToCatBox(file) {
+        const form = new FormData();
+        form.append('reqtype', 'fileupload');
+        form.append('fileToUpload', file);
+        /* CatBox ne requiert pas de clé pour les uploads anonymes */
+        const res = await fetch('https://catbox.moe/user/api.php', {
+          method: 'POST',
+          body: form,
+        });
+        if (!res.ok) throw new Error('CatBox HTTP ' + res.status);
+        const url = (await res.text()).trim();
+        if (!url.startsWith('https://')) throw new Error('CatBox : réponse invalide');
+        return url;
+      }
+    })();
 
     function showProfileMsg(msg, isSuccess) {
       if (!msgEl) return;
