@@ -163,6 +163,13 @@
       'profile.emailChanged': '✓ Un email de confirmation a été envoyé à votre nouvelle adresse.',
       'profile.pseudoChanged': '✓ Pseudo mis à jour !',
       'profile.reauthNeeded': 'Veuillez vous reconnecter pour continuer.',
+      'profile.avatar':        'Photo de profil',
+      'profile.avatarHint':    'JPG, PNG ou GIF · max 2 Mo',
+      'profile.avatarSave':    'Enregistrer',
+      'profile.avatarRemove':  'Supprimer',
+      'profile.avatarSaved':   '✓ Photo de profil mise à jour !',
+      'profile.avatarRemoved': '✓ Photo supprimée.',
+      'profile.avatarTooBig':  '❌ Image trop lourde (max 2 Mo).',
 
       /* Chat */
       'chat.title': 'Chat Global',
@@ -331,6 +338,13 @@
       'profile.emailChanged': '✓ A confirmation email has been sent to your new address.',
       'profile.pseudoChanged': '✓ Username updated!',
       'profile.reauthNeeded': 'Please log in again to continue.',
+      'profile.avatar':        'Profile picture',
+      'profile.avatarHint':    'JPG, PNG or GIF · max 2 MB',
+      'profile.avatarSave':    'Save',
+      'profile.avatarRemove':  'Remove',
+      'profile.avatarSaved':   '✓ Profile picture updated!',
+      'profile.avatarRemoved': '✓ Picture removed.',
+      'profile.avatarTooBig':  '❌ Image too large (max 2 MB).',
 
       /* Chat */
       'chat.title': 'Global Chat',
