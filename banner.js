@@ -12,8 +12,16 @@
    *   **fr:** Message en français
    *   **en:** English message
    */
+  var COLOR_MAP = {
+    'vert':  { bg: '#16a34a', text: '#fff' },
+    'bleu':  { bg: '#2563eb', text: '#fff' },
+    'rouge': { bg: '#dc2626', text: '#fff' },
+    'noir':  { bg: '#111827', text: '#fff' },
+    'blanc': { bg: '#f9fafb', text: '#111827' },
+  };
+
   function parseBanner(raw) {
-    var result = { isDisplayed: false, fr: '', en: '' };
+    var result = { isDisplayed: false, fr: '', en: '', color: null };
 
     // Extract frontmatter between first two ---
     var fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/);
@@ -22,6 +30,10 @@
       var displayedMatch = fm.match(/isDisplayed\s*:\s*(\S+)/i);
       if (displayedMatch) {
         result.isDisplayed = displayedMatch[1].trim().toLowerCase() === 'oui';
+      }
+      var colorMatch = fm.match(/color\s*:\s*(\S+)/i);
+      if (colorMatch) {
+        result.color = colorMatch[1].trim().toLowerCase();
       }
     }
 
@@ -47,6 +59,12 @@
     var msg = lang === 'en' ? data.en : data.fr;
 
     banner.textContent = msg;
+
+    // Apply color from frontmatter, fallback to default red
+    var palette = (data.color && COLOR_MAP[data.color]) || COLOR_MAP['rouge'];
+    banner.style.background = palette.bg;
+    banner.style.color = palette.text;
+
     banner.classList.add('visible');
   }
 
