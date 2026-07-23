@@ -1,10 +1,8 @@
 ---
-isDisplayed: non
+isDisplayed: oui
+color: vert
 ---
 
-**fr:** 🚨 Le nombre de joueurs est actuellement à zéro sur tous les serveurs. Notre équipe tente de résoudre le problème.
+**fr:** 🎉 Créez votre compte Deblock dès maintenant pour accéder au chat et aux avis !
 
-**en:** 🚨 The numbers of players is currently at zero on every server. Our team try to fix the problem.
-
-
- 
+**en:** 🎉 Create your Deblock account now to access chat and reviews !
