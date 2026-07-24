@@ -5,12 +5,11 @@
   const DATACENTERS = [
     { host: 'r1.multicraft.network', location: 'Falkenstein, Allemagne', provider: 'Hetzner' },
     { host: 'r3.multicraft.network', location: 'Falkenstein Allemagne', provider: 'Hetzner' },
-    { host: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' }, 
+ /* { host: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' }, this url do not respond */
     { host: 'r6.multicraft.network', location: 'Hong Kong', provider: 'Hetzner' },
     { host: 'r7.multicraft.network', location: 'Naaldwijk, Pays-Bas', provider: 'WorldStream' },
     { host: 'r8.multicraft.network', location: 'Helsinki, Finlande', provider: 'Hetzner' },
-    { host: 'r9.multicraft.network', location: 'Sydney, Autralie', provider: 'OVH' },
-    { host: 'r1.multicraft-online.ru', location: 'Saint Petersburg, Russie', provider: 'Reg.ru' }
+    { host: 'r9.multicraft.network', location: 'Sydney, Autralie', provider: 'OVH' }
   ];
 
   /* ── Supabase ── */
@@ -986,13 +985,7 @@
       );
       if (!res.ok) return null;
       const data = await res.json();
-      const avg = data?.results?.[0]?.result?.stats?.avg;
-      if (typeof avg === 'number') return Math.round(avg);
-      const timings = data?.results?.[0]?.result?.timings;
-      if (Array.isArray(timings) && timings.length) {
-        const sum = timings.reduce((a, b) => a + b.rtt, 0);
-        return Math.round(sum / timings.length);
-      }
+      if (typeof data.avg_ms === 'number') return Math.round(data.avg_ms);
       return null;
     } catch (e) {
       console.error(e);
@@ -1018,7 +1011,7 @@
       const cls = latencyClass(ms);
       badge.className = 'dc-latency-badge ' + cls;
       if (dot) dot.className = 'dc-latency-dot';
-      if (val) val.textContent = ms !== null ? ms + ' ms' : 'N/A';
+      if (val) val.textContent = ms !== null ? ms + ' ms' : '—';
     });
   }
 
@@ -2511,19 +2504,7 @@
         )
           .then(function (r) { return r.json(); })
           .then(function (data) {
-            var ms = null;
-            var avg = data && data.results && data.results[0] && data.results[0].result && data.results[0].result.stats && data.results[0].result.stats.avg;
-            if (typeof avg === 'number') {
-              ms = Math.round(avg);
-            } else {
-              var timings = data && data.results && data.results[0] && data.results[0].result && data.results[0].result.timings;
-              if (Array.isArray(timings) && timings.length) {
-                var sum = timings.reduce(function (a, b) { return a + b.rtt; }, 0);
-                ms = Math.round(sum / timings.length);
-              } else if (typeof data === 'number') {
-                ms = Math.round(data);
-              }
-            }
+            var ms = (data && typeof data.avg_ms === 'number') ? Math.round(data.avg_ms) : null;
             updateLagBadge(badgeId, ms);
           })
           .catch(function () {
@@ -2545,7 +2526,7 @@
       var cls = latencyClass(ms);
       badge.className = 'dc-latency-badge lag-test-result-badge ' + cls;
       if (dot) dot.className = 'dc-latency-dot';
-      if (val) val.textContent = ms !== null ? ms + ' ms' : 'N/A';
+      if (val) val.textContent = ms !== null ? ms + ' ms' : '—';
     }
   })();
 
