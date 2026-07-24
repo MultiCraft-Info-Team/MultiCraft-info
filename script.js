@@ -3,13 +3,18 @@
 
   /* ── Datacenters ── */
   const DATACENTERS = [
-    { host: 'r1.multicraft.network', testHost: 'r1.multicraft.network', location: 'Falkenstein, Allemagne', provider: 'Hetzner' },
-    { host: 'r3.multicraft.network', testHost: 'r3.multicraft.network', location: 'Falkenstein Allemagne', provider: 'Hetzner' },
- /* { host: 'r4.multicraft.network', testHost: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' }, this url do not respond */
-    { host: 'r6.multicraft.network', testHost: 'r6.multicraft.network', location: 'Hong Kong', provider: 'Hetzner' },
-    { host: 'r7.multicraft.network', testHost: 'r7.multicraft.network', location: 'Naaldwijk, Pays-Bas', provider: 'WorldStream' },
-    { host: 'r8.multicraft.network', testHost: 'r8.multicraft.network', location: 'Helsinki, Finlande', provider: 'Hetzner' },
-    { host: 'r9.multicraft.network', testHost: 'r9.multicraft.network', location: 'Sydney, Autralie', provider: 'OVH' }
+{ host: 'r1.multicraft.network', testHost: 'r1.multicraft.network', location: 'Falkenstein, Allemagne', provider: 'Hetzner' },
+{ host: 'r3.multicraft.network', testHost: 'r3.multicraft.network', location: 'Falkenstein, Allemagne', provider: 'Hetzner' },
+/* { host: 'r4.multicraft.network', testHost: 'r4.multicraft.network', location: 'Singapour', provider: 'Leaseweb' }, this url do not respond */
+{ host: 'r6.multicraft.network', testHost: 'r6.multicraft.network', location: 'Hong Kong', provider: 'Hetzner' },
+{ host: 'r7.multicraft.network', testHost: 'r7.multicraft.network', location: 'Naaldwijk, Pays-Bas', provider: 'WorldStream' },
+{ host: 'r8.multicraft.network', testHost: 'r8.multicraft.network', location: 'Helsinki, Finlande', provider: 'Hetzner' },
+{ host: 'r9.multicraft.network', testHost: 'r9.multicraft.network', location: 'Sydney, Australie', provider: 'OVH' },
+{ host: 'menu1.multicraft.network', testHost: 'menu1.multicraft.network', location: 'Nuremberg, Allemagne', provider: 'Netcup' },
+{ host: 'menu2.multicraft.network', testHost: 'menu2.multicraft.network', location: 'Nuremberg, Allemagne', provider: 'Netcup' },
+{ host: 'menu3.multicraft.network', testHost: 'menu3.multicraft.network', location: 'Helsinki, Finlande', provider: 'Hetzner' },
+{ host: 'menu4.multicraft.network', testHost: 'menu4.multicraft.network', location: 'Manassas, États-Unis', provider: 'Netcup' },
+{ host: 'menu5.multicraft.network', testHost: 'menu5.multicraft.network', location: 'Moscou, Russie', provider: 'JSC Timeweb' },
   ];
 
   /* ── Supabase ── */
